@@ -1,42 +1,48 @@
-;; Ownership Transfer Contract
+;; Artwork Registration Contract
 
 ;; Constants
 (define-constant contract-owner tx-sender)
 (define-constant err-not-authorized (err u100))
-(define-constant err-not-found (err u101))
-(define-constant err-not-owner (err u102))
+(define-constant err-already-registered (err u101))
+(define-constant err-not-found (err u102))
 
 ;; Data Maps
-(define-map artwork-ownership
+(define-map artworks
   { artwork-id: uint }
-  { owner: principal }
+  {
+    artist: principal,
+    title: (string-ascii 100),
+    creation-date: uint,
+    medium: (string-ascii 50),
+    dimensions: (string-ascii 50)
+  }
 )
 
 ;; Public Functions
-(define-public (transfer-ownership (artwork-id uint) (new-owner principal))
+(define-public (register-artwork (artwork-id uint) (title (string-ascii 100)) (creation-date uint) (medium (string-ascii 50)) (dimensions (string-ascii 50)))
   (let
     (
-      (current-owner (get current-owner artwork-id))
+      (artist tx-sender)
     )
-    (if (is-eq (ok tx-sender) current-owner)
-      (ok (map-set artwork-ownership { artwork-id: artwork-id } { owner: new-owner }))
-      err-not-owner
+    (if (is-eq tx-sender contract-owner)
+      (if (is-none (map-get? artworks { artwork-id: artwork-id }))
+        (ok (map-set artworks { artwork-id: artwork-id } { artist: artist, title: title, creation-date: creation-date, medium: medium, dimensions: dimensions }))
+        err-already-registered
+      )
+      err-not-authorized
     )
   )
 )
 
-(define-read-only (get-owner (artwork-id uint))
-  (match (map-get? artwork-ownership { artwork-id: artwork-id })
-    ownership (ok (get owner ownership))
+(define-read-only (get-artwork (artwork-id uint))
+  (match (map-get? artworks { artwork-id: artwork-id })
+    artwork (ok artwork)
     err-not-found
   )
 )
 
 ;; Private Functions
-(define-private (get current-owner (artwork-id uint))
-  (match (map-get? artwork-ownership { artwork-id: artwork-id })
-    ownership (ok (get owner ownership))
-    (ok contract-owner)
-  )
+(define-private (is-contract-owner)
+  (is-eq tx-sender contract-owner)
 )
 

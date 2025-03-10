@@ -7,3 +7,5 @@ N
 contracts/exhibition-loan.clar,4/b/4b8d1bbd994d89b0492ed129a70c792eaab78a8f
 P
  contracts/forgery-detection.clar,6/9/697695ffbbf1f7dd73f691efe3d2ae732f8e17c8
+R
+"tests/artwork-registration.test.ts,9/8/98ebee44db3194b53f87e17fda3791d83da99dc7
