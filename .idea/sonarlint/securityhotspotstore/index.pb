@@ -5,3 +5,5 @@ S
 #contracts/artwork-registration.clar,8/6/86fe7769cfbbffc7c056bdf2596ebcf19c9775f7
 N
 contracts/exhibition-loan.clar,4/b/4b8d1bbd994d89b0492ed129a70c792eaab78a8f
+P
+ contracts/forgery-detection.clar,6/9/697695ffbbf1f7dd73f691efe3d2ae732f8e17c8
