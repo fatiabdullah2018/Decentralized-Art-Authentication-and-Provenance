@@ -1,48 +1,42 @@
-;; Artwork Registration Contract
+;; Ownership Transfer Contract
 
 ;; Constants
 (define-constant contract-owner tx-sender)
 (define-constant err-not-authorized (err u100))
-(define-constant err-already-registered (err u101))
-(define-constant err-not-found (err u102))
+(define-constant err-not-found (err u101))
+(define-constant err-not-owner (err u102))
 
 ;; Data Maps
-(define-map artworks
+(define-map artwork-ownership
   { artwork-id: uint }
-  {
-    artist: principal,
-    title: (string-ascii 100),
-    creation-date: uint,
-    medium: (string-ascii 50),
-    dimensions: (string-ascii 50)
-  }
+  { owner: principal }
 )
 
 ;; Public Functions
-(define-public (register-artwork (artwork-id uint) (title (string-ascii 100)) (creation-date uint) (medium (string-ascii 50)) (dimensions (string-ascii 50)))
+(define-public (transfer-ownership (artwork-id uint) (new-owner principal))
   (let
     (
-      (artist tx-sender)
+      (current-owner (get current-owner artwork-id))
     )
-    (if (is-eq tx-sender contract-owner)
-      (if (is-none (map-get? artworks { artwork-id: artwork-id }))
-        (ok (map-set artworks { artwork-id: artwork-id } { artist: artist, title: title, creation-date: creation-date, medium: medium, dimensions: dimensions }))
-        err-already-registered
-      )
-      err-not-authorized
+    (if (is-eq (ok tx-sender) current-owner)
+      (ok (map-set artwork-ownership { artwork-id: artwork-id } { owner: new-owner }))
+      err-not-owner
     )
   )
 )
 
-(define-read-only (get-artwork (artwork-id uint))
-  (match (map-get? artworks { artwork-id: artwork-id })
-    artwork (ok artwork)
+(define-read-only (get-owner (artwork-id uint))
+  (match (map-get? artwork-ownership { artwork-id: artwork-id })
+    ownership (ok (get owner ownership))
     err-not-found
   )
 )
 
 ;; Private Functions
-(define-private (is-contract-owner)
-  (is-eq tx-sender contract-owner)
+(define-private (get current-owner (artwork-id uint))
+  (match (map-get? artwork-ownership { artwork-id: artwork-id })
+    ownership (ok (get owner ownership))
+    (ok contract-owner)
+  )
 )
 

@@ -9,6 +9,11 @@ requirements = []
 path = 'contracts/artwork-registration.clar'
 clarity_version = 2
 epoch = 2.5
+
+[contracts.exhibition-loan]
+path = 'contracts/exhibition-loan.clar'
+clarity_version = 2
+epoch = 2.5
 [repl.analysis]
 passes = ['check_checker']
 
